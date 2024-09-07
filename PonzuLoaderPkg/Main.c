@@ -56,7 +56,7 @@ EFI_STATUS OpenRootDir(EFI_HANDLE image_handle, EFI_FILE_PROTOCOL** root)
 }
 
 EFI_STATUS EFIAPI UefiMain(EFI_HANDLE image_handle, EFI_SYSTEM_TABLE *system_table) {
-  Print(L"Hello, from PonzuLoader!\n");
+  Print(L"Hello, from PonzuLoader! %u\n", sizeof(struct MemoryMap));
 
   // Get memory map
   CHAR8 memorymap_buffer[4096 * 4];
@@ -72,15 +72,14 @@ EFI_STATUS EFIAPI UefiMain(EFI_HANDLE image_handle, EFI_SYSTEM_TABLE *system_tab
 
   EFI_FILE_PROTOCOL *memmap_file;
 
-  // Write to a file called memmap at root level -- to check this, mount disk.img
-  // and ls inside it.
+  // Open a file called memmap at root level and give us the protocol pointer
+  // as an output. To check this file, mount disk.img and ls inside it.
   root_dir->Open(root_dir, &memmap_file, L"\\memmap", EFI_FILE_MODE_READ | EFI_FILE_MODE_WRITE | EFI_FILE_MODE_CREATE, 0);
 
   // Write memory map CSV to the file
   SaveMemoryMap(&map, memmap_file);
   memmap_file->Close(memmap_file);
 
-  // Wait for a key press
   while(1);
   return EFI_SUCCESS;
 }
